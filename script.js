@@ -1,35 +1,110 @@
 // Paths traced against the new 1248 x 1248 reference, cropped at y=416.
-const paths={"body": "M 125 833 Q 139 795 151 784 Q 168 770 213 762 L 355 731 Q 379 716 408 699 Q 445 679 478 664 Q 518 642 551 630 Q 586 613 620 597 Q 655 575 687 552 Q 721 520 755 500 Q 772 491 790 506 Q 826 525 830 552 Q 834 572 820 590 Q 868 637 910 650 Q 973 675 1019 633 Q 1046 608 1074 559 Q 1088 542 1099 550 Q 1095 562 1103 583 Q 1118 633 1125 711 Q 1131 760 1125 811 Q 1020 820 876 823 Q 748 829 628 848 Q 485 870 325 861 Q 200 854 125 833 Z", "toe": "M 155 783 Q 184 769 213 762 L 355 731 Q 374 746 398 740 L 460 723 Q 468 750 465 767 Q 461 791 430 796 Q 356 803 260 795 Q 188 792 155 783 Z", "heel": "M 832 750 Q 951 724 1076 671 Q 1101 687 1125 711 Q 1131 760 1125 811 L 876 823 Q 861 779 832 750 Z", "swoosh": "M 694 638 Q 677 666 679 687 Q 683 711 711 719 Q 737 726 786 712 L 1040 666 Q 1060 661 1076 671 Q 1010 705 919 731 Q 786 766 684 766 Q 631 769 613 744 Q 596 720 620 690 Q 649 659 694 638 Z", "laces": "M 410 698 Q 420 690 434 688 Q 443 691 439 700 Q 436 717 425 719 Q 414 718 410 706 Z M 457 677 Q 468 668 479 668 Q 485 671 481 681 Q 477 695 470 695 Q 460 695 457 677 Z M 501 658 Q 513 650 525 650 Q 529 654 525 665 Q 521 685 513 685 Q 503 684 501 658 Z M 542 640 Q 553 631 565 631 Q 568 638 563 648 Q 559 658 551 657 Q 543 654 542 640 Z M 588 619 Q 598 611 610 613 Q 614 620 610 632 Q 606 647 598 648 Q 589 648 588 619 Z M 621 598 Q 632 591 644 592 Q 649 598 645 609 Q 641 618 634 618 Q 624 618 621 598 Z M 660 578 Q 670 570 681 572 Q 685 581 686 590 Q 686 602 676 604 Q 665 604 660 578 Z M 684 563 Q 696 552 709 553 Q 722 554 730 565 Q 735 574 726 575 Q 719 576 710 568 L 700 565 Q 690 573 684 563 Z", "sole": "M 125 833 Q 200 854 325 861 Q 485 870 628 848 Q 748 829 876 823 Q 1020 820 1125 811 Q 1134 818 1131 842 L 1131 903 Q 1130 943 1104 951 Q 1060 961 880 957 L 350 955 Q 201 952 141 927 Q 113 915 115 891 Q 116 858 125 833 Z"};
-const labels={body:'Upper',toe:'Toe box',heel:'Heel panel',swoosh:'Nike Swoosh',laces:'Laces',sole:'Sole'};
-const original=Object.fromEntries(Object.keys(paths).map(k=>[k,'#ffffff']));
-let colours={...original},showOriginal=false,ready=false;
-const palette=['#ffffff','#202020','#a5bf65','#c4a687','#527da9','#bd4949'];
-const image=new Image();
-const canvas=document.createElement('canvas'),hero=document.createElement('canvas');
-for(const c of [canvas,hero]){c.width=960;c.height=480;c.setAttribute('role','img');c.setAttribute('aria-label','Nike Air Force 1 colour preview');}
-document.querySelector('#shoe').append(canvas);document.querySelector('#hero-shoe').append(hero);
-const base=document.createElement('canvas');base.width=960;base.height=480;
-const mask=document.createElement('canvas');mask.width=960;mask.height=480;
+const paths = { "body": "M 125 833 Q 139 795 151 784 Q 168 770 213 762 L 355 731 Q 379 716 408 699 Q 445 679 478 664 Q 518 642 551 630 Q 586 613 620 597 Q 655 575 687 552 Q 721 520 755 500 Q 772 491 790 506 Q 826 525 830 552 Q 834 572 820 590 Q 868 637 910 650 Q 973 675 1019 633 Q 1046 608 1074 559 Q 1088 542 1099 550 Q 1095 562 1103 583 Q 1118 633 1125 711 Q 1131 760 1125 811 Q 1020 820 876 823 Q 748 829 628 848 Q 485 870 325 861 Q 200 854 125 833 Z", "toe": "M 155 783 Q 184 769 213 762 L 355 731 Q 374 746 398 740 L 460 723 Q 468 750 465 767 Q 461 791 430 796 Q 356 803 260 795 Q 188 792 155 783 Z", "heel": "M 832 750 Q 951 724 1076 671 Q 1101 687 1125 711 Q 1131 760 1125 811 L 876 823 Q 861 779 832 750 Z", "swoosh": "M 694 638 Q 677 666 679 687 Q 683 711 711 719 Q 737 726 786 712 L 1040 666 Q 1060 661 1076 671 Q 1010 705 919 731 Q 786 766 684 766 Q 631 769 613 744 Q 596 720 620 690 Q 649 659 694 638 Z", "laces": "M 410 698 Q 420 690 434 688 Q 443 691 439 700 Q 436 717 425 719 Q 414 718 410 706 Z M 457 677 Q 468 668 479 668 Q 485 671 481 681 Q 477 695 470 695 Q 460 695 457 677 Z M 501 658 Q 513 650 525 650 Q 529 654 525 665 Q 521 685 513 685 Q 503 684 501 658 Z M 542 640 Q 553 631 565 631 Q 568 638 563 648 Q 559 658 551 657 Q 543 654 542 640 Z M 588 619 Q 598 611 610 613 Q 614 620 610 632 Q 606 647 598 648 Q 589 648 588 619 Z M 621 598 Q 632 591 644 592 Q 649 598 645 609 Q 641 618 634 618 Q 624 618 621 598 Z M 660 578 Q 670 570 681 572 Q 685 581 686 590 Q 686 602 676 604 Q 665 604 660 578 Z M 684 563 Q 696 552 709 553 Q 722 554 730 565 Q 735 574 726 575 Q 719 576 710 568 L 700 565 Q 690 573 684 563 Z", "sole": "M 125 833 Q 200 854 325 861 Q 485 870 628 848 Q 748 829 876 823 Q 1020 820 1125 811 Q 1134 818 1131 842 L 1131 903 Q 1130 943 1104 951 Q 1060 961 880 957 L 350 955 Q 201 952 141 927 Q 113 915 115 891 Q 116 858 125 833 Z" };
+const labels = { body: 'Upper', toe: 'Toe box', heel: 'Heel panel', swoosh: 'Nike Swoosh', laces: 'Laces', sole: 'Sole' };
+const original = Object.fromEntries(Object.keys(paths).map(k => [k, '#ffffff']));
+let colours = { ...original }, showOriginal = false, ready = false;
+const palette = ['#ffffff', '#202020', '#a5bf65', '#c4a687', '#527da9', '#bd4949'];
+const image = new Image();
+const canvas = document.createElement('canvas'), hero = document.createElement('canvas');
+for (const c of [canvas, hero]) {
+    c.width = 960;
+    c.height = 480;
+    c.setAttribute('role', 'img');
+    c.setAttribute('aria-label', 'Nike Air Force 1 colour preview');
+}
+document.querySelector('#shoe').append(canvas);
+document.querySelector('#hero-shoe').append(hero);
+const base = document.createElement('canvas');
+base.width = 960;
+base.height = 480;
+const mask = document.createElement('canvas');
+mask.width = 960;
+mask.height = 480;
 // Build disjoint, antialiased region masks once; preserve the original photo luminance.
 let pixels, regions;
-function prepare(){
- pixels=base.getContext('2d').getImageData(0,0,960,480);
- const m=mask.getContext('2d'); regions={};
- for(const [part,path] of Object.entries(paths)){m.clearRect(0,0,960,480);m.fillStyle='#fff';m.save();m.scale(960/1248,480/624);m.translate(0,-416);m.fill(new Path2D(path));m.restore();regions[part]=m.getImageData(0,0,960,480).data;}
+function prepare() {
+    pixels = base.getContext('2d').getImageData(0, 0, 960, 480);
+    const m = mask.getContext('2d');
+    regions = {};
+    for (const [part, path] of Object.entries(paths)) {
+        m.clearRect(0, 0, 960, 480);
+        m.fillStyle = '#fff';
+        m.save();
+        m.scale(960 / 1248, 480 / 624);
+        m.translate(0, -416);
+        m.fill(new Path2D(path));
+        m.restore();
+        regions[part] = m.getImageData(0, 0, 960, 480).data;
+    }
 }
-function draw(target,values){if(!ready)return;
- const ctx=target.getContext('2d'), out=ctx.createImageData(960,480);out.data.set(pixels.data);
- const order=['body','toe','heel','swoosh','laces','sole'];
- for(const part of order){const hex=values[part], rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));const alpha=regions[part];
- for(let i=0;i<out.data.length;i+=4){const w=alpha[i+3]/255;if(!w)continue;
- const lum=(pixels.data[i]*.2126+pixels.data[i+1]*.7152+pixels.data[i+2]*.0722)/255;
- for(let c=0;c<3;c++){const original=pixels.data[i+c];const dyed=hex==='#ffffff'?original:Math.min(255,rgb[c]*lum/0.86+Math.max(0,lum-.86)*70);out.data[i+c]=Math.round(out.data[i+c]*(1-w)+dyed*w);}
- }}ctx.putImageData(out,0,0);
+function draw(target, values) {
+    if (!ready)
+        return;
+    const ctx = target.getContext('2d'), out = ctx.createImageData(960, 480);
+    out.data.set(pixels.data);
+    const order = ['body', 'toe', 'heel', 'swoosh', 'laces', 'sole'];
+    for (const part of order) {
+        const hex = values[part], rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+        const alpha = regions[part];
+        for (let i = 0; i < out.data.length; i += 4) {
+            const w = alpha[i + 3] / 255;
+            if (!w)
+                continue;
+            const lum = (pixels.data[i] * .2126 + pixels.data[i + 1] * .7152 + pixels.data[i + 2] * .0722) / 255;
+            for (let c = 0; c < 3; c++) {
+                const original = pixels.data[i + c];
+                const dyed = hex === '#ffffff' ? original : Math.min(255, rgb[c] * lum / 0.86 + Math.max(0, lum - .86) * 70);
+                out.data[i + c] = Math.round(out.data[i + c] * (1 - w) + dyed * w);
+            }
+        }
+    }
+    ctx.putImageData(out, 0, 0);
 }
-function render(){draw(canvas,showOriginal?original:colours);document.querySelector('#before').textContent=showOriginal?'Show redesign':'Show original';document.querySelectorAll('.swatch').forEach(b=>b.setAttribute('aria-pressed',String(colours[b.dataset.part]===b.dataset.colour)));document.querySelectorAll('input[type=color]').forEach(b=>b.value=colours[b.dataset.part]);}
-for(const part of Object.keys(paths)){const row=document.createElement('div');row.className='palette-row';const label=document.createElement('span');label.textContent=labels[part];row.append(label);for(const colour of palette){const b=document.createElement('button');b.className='swatch';b.style.background=colour;b.dataset.part=part;b.dataset.colour=colour;b.setAttribute('aria-label',`${labels[part]} ${colour}`);b.onclick=()=>{colours[part]=colour;showOriginal=false;render()};row.append(b)}const picker=document.createElement('input');picker.type='color';picker.dataset.part=part;picker.value=original[part];picker.setAttribute('aria-label',`Custom ${labels[part]} colour`);picker.oninput=()=>{colours[part]=picker.value;showOriginal=false;render()};row.append(picker);document.querySelector('#palette').append(row)}
-function selections(){return ['Reuse existing shoes',...Array.from(document.querySelectorAll('.eco:checked'),x=>x.value)]}
-function update(){const list=selections();document.querySelector('#score').textContent=`${list.length}/6`;document.querySelector('#progress').value=list.length;document.querySelector('#summary').replaceChildren(...list.map(x=>{const li=document.createElement('li');li.textContent=x;return li}))}
-document.querySelectorAll('.eco').forEach(x=>x.addEventListener('change',update));document.querySelector('#before').onclick=()=>{showOriginal=!showOriginal;render()};document.querySelector('#reset').onclick=()=>{colours={...original};showOriginal=false;document.querySelectorAll('.eco').forEach(x=>x.checked=false);render();update()};document.querySelector('#save').disabled=true;document.querySelector('#save').onclick=()=>{const out=document.createElement('canvas');out.width=960;out.height=480;draw(out,colours);out.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='my-af1-redesign.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)},'image/png')};
-image.onload=()=>{base.getContext('2d').drawImage(image,0,0,image.width,image.height,0,0,960,480);prepare();ready=true;draw(hero,{...original,swoosh:'#a5bf65'});render();document.querySelector('#save').disabled=false};image.onerror=()=>{document.querySelector('.preview p').textContent='Photo could not load. Keep af1.jpg in the website folder.'};image.src='af1.jpg';update();
-const condition=document.querySelector('#condition');const recommendations={wearable:['RE:DESIGN','Keep your existing pair and preview a new look. Retain usable components.'],restore:['RE:STORE','Prioritise cleaning and a repair assessment before cosmetic changes.'],recycle:['RE:CYCLE','Ask a repair specialist whether the pair is salvageable. If not, check local footwear collection eligibility.']};function route(){const [name,description]=recommendations[condition.value];document.querySelector('#recommendation').replaceChildren(Object.assign(document.createElement('h3'),{textContent:name}),Object.assign(document.createElement('p'),{textContent:description}));}condition.addEventListener('change',route);route();document.querySelector('#save-plan').onclick=()=>{const [name,description]=recommendations[condition.value];const text=['NIKE RE:DESIGN — Student campaign concept','Your proposed route: '+name,description,'','Selected choices:',...selections(),'','Colour palette:',...Object.entries(colours).map(([k,v])=>labels[k]+': '+v),'','Not a booking or verified environmental impact assessment.'].join('\n');const url=URL.createObjectURL(new Blob([text],{type:'text/plain'}));const a=document.createElement('a');a.href=url;a.download='my-redesign-plan.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+function render() { draw(canvas, showOriginal ? original : colours); document.querySelector('#before').textContent = showOriginal ? 'Show redesign' : 'Show original'; document.querySelectorAll('.swatch').forEach(b => b.setAttribute('aria-pressed', String(colours[b.dataset.part] === b.dataset.colour))); document.querySelectorAll('input[type=color]').forEach(b => b.value = colours[b.dataset.part]); }
+for (const part of Object.keys(paths)) {
+    const row = document.createElement('div');
+    row.className = 'palette-row';
+    const label = document.createElement('span');
+    label.textContent = labels[part];
+    row.append(label);
+    for (const colour of palette) {
+        const b = document.createElement('button');
+        b.className = 'swatch';
+        b.style.background = colour;
+        b.dataset.part = part;
+        b.dataset.colour = colour;
+        b.setAttribute('aria-label', `${labels[part]} ${colour}`);
+        b.onclick = () => { colours[part] = colour; showOriginal = false; render(); };
+        row.append(b);
+    }
+    const picker = document.createElement('input');
+    picker.type = 'color';
+    picker.dataset.part = part;
+    picker.value = original[part];
+    picker.setAttribute('aria-label', `Custom ${labels[part]} colour`);
+    picker.oninput = () => { colours[part] = picker.value; showOriginal = false; render(); };
+    row.append(picker);
+    document.querySelector('#palette').append(row);
+}
+function selections() { return ['Reuse existing shoes', ...Array.from(document.querySelectorAll('.eco:checked'), x => x.value)]; }
+function update() { const list = selections(); document.querySelector('#score').textContent = `${list.length}/6`; document.querySelector('#progress').value = list.length; document.querySelector('#summary').replaceChildren(...list.map(x => { const li = document.createElement('li'); li.textContent = x; return li; })); }
+document.querySelectorAll('.eco').forEach(x => x.addEventListener('change', update));
+document.querySelector('#before').onclick = () => { showOriginal = !showOriginal; render(); };
+document.querySelector('#reset').onclick = () => { colours = { ...original }; showOriginal = false; document.querySelectorAll('.eco').forEach(x => x.checked = false); render(); update(); };
+document.querySelector('#save').disabled = true;
+document.querySelector('#save').onclick = () => {
+    const out = document.createElement('canvas'); out.width = 960; out.height = 480; draw(out, colours); out.toBlob(blob => {
+        if (!blob)
+            return; const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'my-af1-redesign.png'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, 'image/png');
+};
+image.onload = () => { base.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, 960, 480); prepare(); ready = true; draw(hero, { ...original, swoosh: '#a5bf65' }); render(); document.querySelector('#save').disabled = false; };
+image.onerror = () => { document.querySelector('.preview p').textContent = 'Photo could not load. Keep af1.jpg in the website folder.'; };
+image.src = 'af1.jpg';
+update();
+const condition = document.querySelector('#condition');
+const recommendations = { wearable: ['RE:DESIGN', 'Keep your existing pair and preview a new look. Retain usable components.'], restore: ['RE:STORE', 'Prioritise cleaning and a repair assessment before cosmetic changes.'], recycle: ['RE:CYCLE', 'Ask a repair specialist whether the pair is salvageable. If not, check local footwear collection eligibility.'] };
+function route() { const [name, description] = recommendations[condition.value]; document.querySelector('#recommendation').replaceChildren(Object.assign(document.createElement('h3'), { textContent: name }), Object.assign(document.createElement('p'), { textContent: description })); }
+condition.addEventListener('change', route);
+route();
+document.querySelector('#save-plan').onclick = () => { const [name, description] = recommendations[condition.value]; const text = ['NIKE RE:DESIGN — Student campaign concept', 'Your proposed route: ' + name, description, '', 'Selected choices:', ...selections(), '', 'Colour palette:', ...Object.entries(colours).map(([k, v]) => labels[k] + ': ' + v), '', 'Not a booking or verified environmental impact assessment.'].join('\n'); const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); const a = document.createElement('a'); a.href = url; a.download = 'my-redesign-plan.txt'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
